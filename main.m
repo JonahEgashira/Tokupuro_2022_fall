@@ -99,18 +99,3 @@ function threshold_x = find_threshold_x(x1, y1, x2, y2, threshold)
     a = (y2 - y1) / (x2 - x1);
     threshold_x = (threshold - y1) / a + x1;
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
