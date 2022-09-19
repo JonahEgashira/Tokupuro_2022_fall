@@ -1,0 +1,116 @@
+prompt = "Which data? (Type name): ";
+name = input(prompt, "s");
+
+finger_x = [0.5, 1, 2, 3, 4, 5, 7, 11];
+palm_x = [1, 2, 5, 7, 8, 9, 10, 13];
+x_space = linspace(0, 15, 100);
+
+
+data = readmatrix(strcat(name, ".csv"));
+finger_y = data(1, :) / 10;
+palm_y = data(2, :) / 10;
+
+
+trial_n = [1, 1, 1, 1, 1, 1, 1, 1];
+space_n = ones(100, 1);
+
+
+[finger_b, finger_dev, finger_stats] = glmfit(finger_x, [finger_y' trial_n'], 'binomial', 'Link', 'probit');
+finger_fit = glmval(finger_b, x_space, 'probit', 'Size', space_n');
+
+[palm_b, palm_dev, palm_stats] = glmfit(palm_x, [palm_y' trial_n'], 'binomial', 'Link', 'probit');
+palm_fit = glmval(palm_b, x_space, 'probit', 'Size', space_n');
+
+
+plot(finger_x, finger_y, 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'blue')
+hold on
+plot(palm_x, palm_y, 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'red')
+hold on
+plot(x_space, finger_fit, '-', 'Color', 'blue', 'LineWidth', 1)
+hold on
+plot(x_space, palm_fit, '-', 'Color', 'red', 'LineWidth', 1)
+hold off
+
+legend({'Finger', 'Palm'},... 
+    'Location', 'southeast')
+xlabel('Distance [mm]','FontSize', 14);
+ylabel('Accuracy of "Two Points" Judgement', 'FontSize', 14);
+title('Two-point discrimination', 'FontSize', 16);
+grid on
+ylim([0, 1])
+
+% TODO
+% 定量評価
+% 閾値 : y = 0.5 の時の x -> curveの式から
+% 感度 : 刺激の差に対してどれだけsensitiveかΔI 
+% -> y = 0.75と0.25の時のxの差 
+
+%%%%%%%%%%%%%% Eval %%%%%%%%%%%%%%%%%%
+
+thresholds = [0.25, 0.5, 0.75];
+
+for threshold = thresholds
+    x1 = 0;
+    y1 = 0;
+    x2 = 100;
+    y2 = 100;
+    for i = 1:numel(x_space)
+        x = x_space(i);
+        y = finger_fit(i);
+        if y < threshold
+            x1 = max(x1, x);
+            y1 = max(y1, y);
+        end
+
+        if y > threshold
+            x2 = min(x2, x);
+            y2 = min(y2, y);
+        end
+    end
+    threshold_x = find_threshold_x(x1, y1, x2, y2, threshold);
+    fprintf('Finger: y = %4.2f, x = %4.2f\n',threshold, threshold_x)
+end
+
+for threshold = thresholds
+    x1 = 0;
+    y1 = 0;
+    x2 = 100;
+    y2 = 100;
+    for i = 1:numel(x_space)
+        x = x_space(i);
+        y = palm_fit(i);
+        if y < threshold
+            x1 = max(x1, x);
+            y1 = max(y1, y);
+        end
+
+        if y > threshold
+            x2 = min(x2, x);
+            y2 = min(y2, y);
+        end
+    end
+    threshold_x = find_threshold_x(x1, y1, x2, y2, threshold);
+    fprintf('Palm: y = %4.2f, x = %4.2f\n',threshold, threshold_x)
+end
+
+
+
+function threshold_x = find_threshold_x(x1, y1, x2, y2, threshold)
+    a = (y2 - y1) / (x2 - x1);
+    threshold_x = (threshold - y1) / a + x1;
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
