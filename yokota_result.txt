@@ -1,0 +1,6 @@
+Finger: y = 0.25, x = 0.01
+Finger: y = 0.50, x = 0.58
+Finger: y = 0.75, x = 1.14
+Palm: y = 0.25, x = 3.43
+Palm: y = 0.50, x = 5.59
+Palm: y = 0.75, x = 7.76

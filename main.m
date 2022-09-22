@@ -49,6 +49,9 @@ ylim([0, 1])
 
 thresholds = [0.25, 0.5, 0.75];
 
+fileName = strcat(name, "_result.txt");
+fileId = fopen(fileName, 'w');
+
 for threshold = thresholds
     x1 = 0;
     y1 = 0;
@@ -68,7 +71,7 @@ for threshold = thresholds
         end
     end
     threshold_x = find_threshold_x(x1, y1, x2, y2, threshold);
-    fprintf('Finger: y = %4.2f, x = %4.2f\n',threshold, threshold_x)
+    fprintf(fileId, 'Finger: y = %4.2f, x = %4.2f\n',threshold, threshold_x);
 end
 
 for threshold = thresholds
@@ -90,10 +93,10 @@ for threshold = thresholds
         end
     end
     threshold_x = find_threshold_x(x1, y1, x2, y2, threshold);
-    fprintf('Palm: y = %4.2f, x = %4.2f\n',threshold, threshold_x)
+    fprintf(fileId, 'Palm: y = %4.2f, x = %4.2f\n',threshold, threshold_x);
 end
 
-
+fclose(fileId);
 
 function threshold_x = find_threshold_x(x1, y1, x2, y2, threshold)
     a = (y2 - y1) / (x2 - x1);
